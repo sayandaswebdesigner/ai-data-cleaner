@@ -1,0 +1,21 @@
+customer_id,name,email,country,signup_date,last_purchase,total_spend,phone,status
+1,John Smith,john.smith@email.com,United States,2023-01-15,2024-01-20,1250.5,+1-555-0101,Active
+2,Jane Doe,jane.doe@email.com,United States,2023-02-20,2024-02-15,890.0,+1-555-0102,Active
+3,Bob Johnson,bob.j@email.com,United States,2023-03-10,2024-03-05,,555-0103,Active
+4,Alice Brown,alice.brown@email.com,United Kingdom,2023-04-05,2024-04-10,2100.75,+442079460104,Active
+5,Charlie Wilson,charlie.w@email.com,United Kingdom,2023-05-12,2024-05-10,450.0,+442079460105,Inactive
+6,Diana Prince,diana.p@email.com,Germany,2023-06-18,2024-06-22,3200.0,+493012344567,Active
+7,Edward Norton,ed.norton@email.com,Germany,2023-07-22,2024-07-25,,+493012344568,Active
+8,Fiona Gallagher,fiona.g@email.com,France,2023-08-30,2024-08-14,1800.25,+33140796789,Active
+9,George Lucas,george.l@email.com,France,2023-09-14,2024-09-01,950.0,+33140796790,Active
+10,Hannah Montana,hannah.m@email.com,Canada,2023-10-03,2024-10-10,,+1-416-555-0110,Active
+11,Ian Fleming,ian.f@email.com,Canada,2023-11-20,2024-11-15,2750.0,+1-416-555-0111,Inactive
+12,Julia Roberts,julia.r@email.com,Australia,2023-12-08,2024-12-05,1500.0,+61298765432,Active
+13,Kevin Costner,kevin.c@email.com,Australia,2024-01-15,2024-01-20,,+61298765433,Active
+14,Laura Linney,laura.l@email.com,Japan,2024-02-10,2024-02-15,4200.0,+81355555678,Active
+15,Michael Jordan,michael.j@email.com,Japan,2024-03-05,2024-03-10,,+81355555679,Active
+16,Natalie Portman,natalie.p@email.com,Brazil,2024-04-12,2024-04-18,3100.5,+551198764321,Active
+17,Oscar Isaac,oscar.i@email.com,Brazil,2024-05-20,2024-05-25,,+551198764322,Active
+18,Penelope Cruz,penelope.c@email.com,India,2024-06-10,2024-06-15,1900.0,+912223456789,Active
+19,Quentin Tarantino,quentin.t@email.com,India,2024-07-22,2024-07-28,,+912223456790,Inactive
+20,Rachel Weisz,rachel.w@email.com,United States,2023-01-15,2024-01-20,1250.5,+1-555-0101,Active

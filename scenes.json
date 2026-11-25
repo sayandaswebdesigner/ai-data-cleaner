@@ -1,0 +1,104 @@
+[
+  {
+    "title": "1. The Problem: 4 Hours vs 10 Seconds",
+    "items": [
+      "40-row export: 20 country variants (US, USA, United States...)",
+      "Mixed dates: 2023-01-15, 2023/03/10, -",
+      "Spend: 1250.50, 890.00, -, N/A (zeroing corrupts totals!)",
+      "20 duplicate customer_ids silently inflating metrics",
+      "4 hours of VLOOKUPs vs 10 seconds of code"
+    ],
+    "narration": "Here's the problem. A 40-row customer export with 20 country variants — US, USA, United States, U.S.A. — all meaning the same thing. Mixed date formats: ISO, slash-separated, dashes for missing. Spend columns with 1250.50, 890.00, then dashes and N/A that people mistakenly zero out, corrupting financial totals. And 20 duplicate customer IDs silently inflating your metrics. Four hours of VLOOKUPs and manual fixes, or ten seconds of code.",
+    "caption": "Messy data: country variants, mixed dates, dirty numbers, silent duplicates"
+  },
+  {
+    "title": "2. The 3-Tier Pipeline Architecture",
+    "items": [
+      "PARSE: Load raw, detect dtypes, flag anomalies",
+      "NORMALIZE: LLM-assisted category mapping (20 to 6 canonical)",
+      "VALIDATE: Pandas schema guards, verification log, human review"
+    ],
+    "narration": "The solution is a three-tier pipeline. Parse: load the raw file, detect data types, flag anomalies. Normalize: use LLM-assisted category mapping — twenty country variants collapse to six canonical names. Validate: Pandas schema guards and a verification log that a human reviews before the data hits production.",
+    "caption": "Inspect to Fix to Verify: three stages, zero manual cleanup"
+  },
+  {
+    "title": "3. Step 1: Duplicate Audit",
+    "items": [
+      "dup_mask = df.duplicated(subset=['customer_id'], keep=False)",
+      "dup_count = dup_mask.sum()",
+      "df = df.drop_duplicates(subset=['customer_id'], keep='first')",
+      "Removed 20 duplicate rows"
+    ],
+    "narration": "Step one: duplicate audit. We flag every row sharing a customer_id, count them, then drop duplicates keeping the first occurrence. Twenty duplicate rows removed instantly.",
+    "caption": "Duplicate audit: flag to count to drop keeping first"
+  },
+  {
+    "title": "4. Step 2: Spend Cleanup (Never Zero Financials!)",
+    "items": [
+      "df['total_spend'].replace({'-': np.nan, 'N/A': np.nan})",
+      "pd.to_numeric(df['total_spend'], errors='coerce')",
+      "7 dashes to NaN (preserved, NOT zeroed)"
+    ],
+    "narration": "Step two: spend cleanup. This is critical — never zero out financial nulls. Replace dashes and N/A with NaN, then coerce to numeric. Seven dashes become NaN, preserved for human review, not silently zeroed.",
+    "caption": "Guardrail: NaN for missing financials, never zero"
+  },
+  {
+    "title": "5. Step 3: Mixed Date Parsing",
+    "items": [
+      "df[col].replace('-', np.nan)",
+      "pd.to_datetime(df[col], format='mixed', errors='coerce')",
+      "Handles YYYY-MM-DD, YYYY/MM/DD, -"
+    ],
+    "narration": "Step three: mixed date parsing. Pandas 3.x format='mixed' handles ISO, slash-separated, and missing values in one call. Twenty mixed dates parsed to ISO format automatically.",
+    "caption": "One call parses ISO, slashes, and missing values"
+  },
+  {
+    "title": "6. Step 4: Country Normalization",
+    "items": [
+      "COUNTRY_MAP = {'usa': 'United States', 'uk': 'United Kingdom', ...}",
+      "df['country'].str.lower().map(COUNTRY_MAP)",
+      "20 variants to 6 canonical (unmatched preserved)"
+    ],
+    "narration": "Step four: country normalization. A simple mapping dictionary — twenty variants map to six canonical names. Unmatched values are preserved for review, not dropped.",
+    "caption": "20 country variants map to 6 canonical names"
+  },
+  {
+    "title": "7. Edge Cases and Hallucination Guards",
+    "items": [
+      "Pydantic or JSON Schema validation on output",
+      "Never zero financial nulls to keep NaN",
+      "Preserve unmatched categories for human review",
+      "Structured Markdown cleaning log",
+      "Row-count sanity checks (0.5x to 1.0x)"
+    ],
+    "narration": "Edge cases and hallucination guards. Pydantic or JSON Schema validation on output. Never zero financial nulls — keep them as NaN. Preserve unmatched categories for human review. Generate a structured Markdown cleaning log. Row-count sanity checks ensure you didn't lose half your data. Human-in-the-loop equals production safety.",
+    "caption": "Production safety: validate, preserve, log, sanity-check"
+  },
+  {
+    "title": "8. Results and Verification",
+    "items": [
+      "40 rows to 20 clean rows",
+      "20 duplicate IDs removed",
+      "7 spend dashes to NaN (not zero!)",
+      "20 mixed dates to ISO format",
+      "20 country variants to 6 canonical",
+      "20 phones to E.164 format",
+      "Verification log and schema guards passed"
+    ],
+    "narration": "The results: forty rows become twenty clean rows. Twenty duplicate IDs removed. Seven spend dashes become NaN, not zero. Twenty mixed dates parsed to ISO format. Twenty country variants collapse to six canonical. Twenty phones normalized to E.164. A full verification log generated. All five schema guards passed. Ready for next month's batch.",
+    "caption": "Verified clean: 20 rows, 5 schema checks passed"
+  },
+  {
+    "title": "9. Get the Code and Next Steps",
+    "items": [
+      "github.com/TaskToFlow/ai-data-cleaner",
+      "cleaner.py (full pipeline)",
+      "customers_messy.csv (sample data)",
+      "cleaning_report.md (auto-generated)",
+      "What would YOU clean next?",
+      "Task to Flow - Practical AI Workflows"
+    ],
+    "narration": "Get the complete code at github.com/TaskToFlow/ai-data-cleaner. You'll find cleaner.py with the full pipeline, the sample messy dataset, and the auto-generated cleaning report. What messy dataset would you clean next? Subscribe for practical AI workflows from Task to Flow.",
+    "caption": "Code at github.com/TaskToFlow/ai-data-cleaner - Subscribe!"
+  }
+]

@@ -1,0 +1,35 @@
+1
+00:00:00,000 --> 00:00:38,664
+Here's the problem. A 40-row customer export with 20 country variants — US, USA, United States, U.S.A. — all meaning the same thing. Mixed date formats: ISO, slash-separated, dashes for missing. Spend columns with 1250.50, 890.00, then dashes and N/A that people mistakenly zero out, corrupting financial totals. And 20 duplicate customer IDs silently inflating your metrics. Four hours of VLOOKUPs and manual fixes, or ten seconds of code.
+
+2
+00:00:38,664 --> 00:01:01,272
+The solution is a three-tier pipeline. Parse: load the raw file, detect data types, flag anomalies. Normalize: use LLM-assisted category mapping — twenty country variants collapse to six canonical names. Validate: Pandas schema guards and a verification log that a human reviews before the data hits production.
+
+3
+00:01:01,272 --> 00:01:14,760
+Step one: duplicate audit. We flag every row sharing a customer_id, count them, then drop duplicates keeping the first occurrence. Twenty duplicate rows removed instantly.
+
+4
+00:01:14,760 --> 00:01:32,520
+Step two: spend cleanup. This is critical — never zero out financial nulls. Replace dashes and N/A with NaN, then coerce to numeric. Seven dashes become NaN, preserved for human review, not silently zeroed.
+
+5
+00:01:32,520 --> 00:01:47,496
+Step three: mixed date parsing. Pandas 3.x format='mixed' handles ISO, slash-separated, and missing values in one call. Twenty mixed dates parsed to ISO format automatically.
+
+6
+00:01:47,496 --> 00:02:00,312
+Step four: country normalization. A simple mapping dictionary — twenty variants map to six canonical names. Unmatched values are preserved for review, not dropped.
+
+7
+00:02:00,312 --> 00:02:25,728
+Edge cases and hallucination guards. Pydantic or JSON Schema validation on output. Never zero financial nulls — keep them as NaN. Preserve unmatched categories for human review. Generate a structured Markdown cleaning log. Row-count sanity checks ensure you didn't lose half your data. Human-in-the-loop equals production safety.
+
+8
+00:02:25,728 --> 00:02:55,968
+The results: forty rows become twenty clean rows. Twenty duplicate IDs removed. Seven spend dashes become NaN, not zero. Twenty mixed dates parsed to ISO format. Twenty country variants collapse to six canonical. Twenty phones normalized to E.164. A full verification log generated. All five schema guards passed. Ready for next month's batch.
+
+9
+00:02:55,968 --> 00:03:17,496
+Get the complete code at github.com/TaskToFlow/ai-data-cleaner. You'll find cleaner.py with the full pipeline, the sample messy dataset, and the auto-generated cleaning report. What messy dataset would you clean next? Subscribe for practical AI workflows from Task to Flow.
