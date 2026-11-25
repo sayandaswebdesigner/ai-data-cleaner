@@ -19,21 +19,18 @@ Stop wasting hours on VLOOKUPs and manual spreadsheet cleanup. In this tutorial,
 **Result:** Clean, analysis-ready data + verification report in ~10 seconds
 
 **Code & Data:**
-📁 GitHub: https://github.com/TaskToFlow/ai-data-cleaner
+📁 GitHub: https://github.com/sayandaswebdesigner/ai-data-cleaner
 🐍 cleaner.py — full pipeline (duplicate audit, spend cleanup, date parsing, country normalization, phone formatting)
 📊 customers_messy.csv — sample messy export
 📄 cleaning_report.md — auto-generated audit log
 
-**Chapters:**
-0:00 - The Problem: 4 Hours vs 10 Seconds
-1:30 - The 3-Tier Pipeline Architecture
-3:00 - Step 1: Duplicate Audit
-4:15 - Step 2: Spend Cleanup (Never Zero Financials!)
-5:30 - Step 3: Mixed Date Parsing
-6:45 - Step 4: Country Normalization (20→6)
-8:00 - Edge Cases & Hallucination Guards
-9:15 - Results & Verification
-10:00 - Get the Code & Next Steps
+**Sections Covered (1:53 Motion-Graphics Tutorial):**
+• Hook: 4 Hours Manual VLOOKUPs vs 10 Seconds Python + AI
+• Live Before/After CSV Transformation
+• 3-Stage Architecture: Parse → Normalize → Validate
+• Code Walkthrough: Deduplication & Safe Spend Coercion (`NaN`, never zero)
+• Mixed Date Parsing & Safe Country Normalization (`20 → 6`)
+• Live Pipeline Verification Run & 5/5 Schema Guards
 
 **Connect:**
 🔔 Subscribe for practical AI workflows: @TaskToFlow

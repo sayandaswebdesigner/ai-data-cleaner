@@ -1,104 +1,139 @@
 [
   {
-    "title": "1. The Problem: 4 Hours vs 10 Seconds",
-    "items": [
-      "40-row export: 20 country variants (US, USA, United States...)",
-      "Mixed dates: 2023-01-15, 2023/03/10, -",
-      "Spend: 1250.50, 890.00, -, N/A (zeroing corrupts totals!)",
-      "20 duplicate customer_ids silently inflating metrics",
-      "4 hours of VLOOKUPs vs 10 seconds of code"
+    "layout": "hook",
+    "kicker": "4 HOURS VS 10 SECONDS",
+    "title": "Stop Fixing Messy Spreadsheets Manually",
+    "leftItems": [
+      "20 mixed country names break pivots (US, USA, Deutschland)",
+      "Hidden duplicate customer IDs silently inflate revenue",
+      "Mixed dates & spend dashes trigger wrong zeros"
     ],
-    "narration": "Here's the problem. A 40-row customer export with 20 country variants — US, USA, United States, U.S.A. — all meaning the same thing. Mixed date formats: ISO, slash-separated, dashes for missing. Spend columns with 1250.50, 890.00, then dashes and N/A that people mistakenly zero out, corrupting financial totals. And 20 duplicate customer IDs silently inflating your metrics. Four hours of VLOOKUPs and manual fixes, or ten seconds of code.",
-    "caption": "Messy data: country variants, mixed dates, dirty numbers, silent duplicates"
+    "rightItems": [
+      "10-second deterministic Inspect -> Fix -> Verify script",
+      "Preserves true missing financials safely as NaN",
+      "Auto-generates clean CSV + full Markdown audit log"
+    ],
+    "narration": "Stop losing hours to manual spreadsheet cleanups. A typical export with mixed country names, duplicate IDs, and broken dates breaks VLOOKUPs fast—and zeroing out dashes silently corrupts revenue. In two minutes, let's replace all of that with a verified ten-second pipeline.",
+    "caption": "Replace hours of VLOOKUPs with a 10-second pipeline."
   },
   {
-    "title": "2. The 3-Tier Pipeline Architecture",
-    "items": [
-      "PARSE: Load raw, detect dtypes, flag anomalies",
-      "NORMALIZE: LLM-assisted category mapping (20 to 6 canonical)",
-      "VALIDATE: Pandas schema guards, verification log, human review"
+    "layout": "table",
+    "kicker": "LIVE PIPELINE PREVIEW",
+    "title": "Watch Dirty CSV Rows Clean Automatically",
+    "filename": "customers_messy.csv -> customers_clean.csv",
+    "columns": ["customer_id", "country", "total_spend", "signup_date", "status"],
+    "rowsBefore": [
+      ["002 (DUP)", "U.S.A.", "-", "2023/03/10", "enabled"],
+      ["003", "Deutschland", "1,250.50", "15-01-2023", "TRUE"],
+      ["004 (DUP)", "UK", "N/A", "2023.04.05", "1"],
+      ["005", "usa", "890.00", "2023-05-12", "active"]
     ],
-    "narration": "The solution is a three-tier pipeline. Parse: load the raw file, detect data types, flag anomalies. Normalize: use LLM-assisted category mapping — twenty country variants collapse to six canonical names. Validate: Pandas schema guards and a verification log that a human reviews before the data hits production.",
-    "caption": "Inspect to Fix to Verify: three stages, zero manual cleanup"
+    "rowsAfter": [
+      ["[REMOVED]", "United States", "NaN (Preserved)", "2023-03-10", "Active"],
+      ["003", "Germany", "1250.50", "2023-01-15", "Active"],
+      ["[REMOVED]", "United Kingdom", "NaN (Preserved)", "2023-04-05", "Active"],
+      ["005", "United States", "890.00", "2023-05-12", "Active"]
+    ],
+    "narration": "Look at what needs to happen row by row. Duplicate customer rows get audited and dropped, aliases like U-S-A and Deutschland map cleanly to canonical names, and missing spend dashes become NaN—never silent zeros.",
+    "caption": "Duplicates dropped, aliases mapped, dashes preserved safely."
   },
   {
-    "title": "3. Step 1: Duplicate Audit",
-    "items": [
-      "dup_mask = df.duplicated(subset=['customer_id'], keep=False)",
-      "dup_count = dup_mask.sum()",
+    "layout": "pipeline",
+    "kicker": "ARCHITECTURE",
+    "title": "The 3-Stage Inspect -> Fix -> Verify Pattern",
+    "nodes": [
+      {
+        "tag": "STAGE 01",
+        "name": "Parse & Audit",
+        "desc": "Load CSV, count duplicate IDs, and snapshot null counts before touching anything."
+      },
+      {
+        "tag": "STAGE 02",
+        "name": "Normalize Safely",
+        "desc": "Coerce spend safely, parse mixed dates, map 20 country aliases, and format phones."
+      },
+      {
+        "tag": "STAGE 03",
+        "name": "Validate & Log",
+        "desc": "Enforce 5 pandas schema guards and write a Markdown verification audit report."
+      }
+    ],
+    "narration": "Never ask an AI prompt to blindly edit a spreadsheet in one shot. Split it into three strict stages: Parse and audit raw anomalies first, normalize deterministically with clear guardrails second, and validate every column with assertions third.",
+    "caption": "Parse, normalize safely, and enforce schema guards."
+  },
+  {
+    "layout": "code",
+    "kicker": "CODE WALKTHROUGH • 01",
+    "filename": "cleaner.py (lines 114-127)",
+    "title": "Deduplicate & Protect Missing Financial Numbers",
+    "codeLines": [
+      "# 1. Drop duplicate customer IDs cleanly",
       "df = df.drop_duplicates(subset=['customer_id'], keep='first')",
-      "Removed 20 duplicate rows"
+      "# 2. Coerce spend without turning dashes into zero!",
+      "df['total_spend'] = df['total_spend'].replace({'-': np.nan, 'N/A': np.nan})",
+      "df['total_spend'] = pd.to_numeric(df['total_spend'], errors='coerce')"
     ],
-    "narration": "Step one: duplicate audit. We flag every row sharing a customer_id, count them, then drop duplicates keeping the first occurrence. Twenty duplicate rows removed instantly.",
-    "caption": "Duplicate audit: flag to count to drop keeping first"
+    "highlight": "CRITICAL: Keeping dashes as NaN protects averages & total revenue accuracy",
+    "narration": "First inside cleaner dot py, we remove duplicate customer records keeping the first occurrence. Next, we replace dashes and N-A markers with N-A-N before numeric coercion so missing numbers never poison revenue averages.",
+    "caption": "Deduplicate and coerce spend while preserving NaN."
   },
   {
-    "title": "4. Step 2: Spend Cleanup (Never Zero Financials!)",
-    "items": [
-      "df['total_spend'].replace({'-': np.nan, 'N/A': np.nan})",
-      "pd.to_numeric(df['total_spend'], errors='coerce')",
-      "7 dashes to NaN (preserved, NOT zeroed)"
+    "layout": "code",
+    "kicker": "CODE WALKTHROUGH • 02",
+    "filename": "cleaner.py (lines 139-154)",
+    "title": "One-Pass Mixed Dates & Safe Country Mapping",
+    "codeLines": [
+      "# Parse ISO, slash, and European formats reliably",
+      "df[col] = pd.to_datetime(df[col], format='mixed', errors='coerce')",
+      "# Normalize 20 variants -> preserve unknown regions for review",
+      "df['country_clean'] = df['country'].str.lower().map(COUNTRY_MAP)",
+      "df.loc[df['country_clean'].isna(), 'country_clean'] = df['country']"
     ],
-    "narration": "Step two: spend cleanup. This is critical — never zero out financial nulls. Replace dashes and N/A with NaN, then coerce to numeric. Seven dashes become NaN, preserved for human review, not silently zeroed.",
-    "caption": "Guardrail: NaN for missing financials, never zero"
+    "highlight": "Unmatched categories stay visible for human review instead of disappearing",
+    "narration": "For messy dates, pandas mixed format parses ISO and slash timestamps in one line. And for country cleanup, any value missing from the mapping dictionary is kept intact rather than dropped silently.",
+    "caption": "Parse mixed timestamps and preserve unknown categories."
   },
   {
-    "title": "5. Step 3: Mixed Date Parsing",
-    "items": [
-      "df[col].replace('-', np.nan)",
-      "pd.to_datetime(df[col], format='mixed', errors='coerce')",
-      "Handles YYYY-MM-DD, YYYY/MM/DD, -"
+    "layout": "terminal",
+    "kicker": "LIVE EXECUTION",
+    "title": "Running Verification & Audit Trail Generation",
+    "terminalLines": [
+      "Loaded customers_messy.csv (40 rows x 9 cols)",
+      "Removed 20 duplicate customer_ids (kept first occurrence)",
+      "Spend Cleanup: 7 dashes -> NaN (zero silent zeroes)",
+      "Parsed 20 mixed dates to ISO + normalized E.164 phones",
+      "All 5 schema guards passed -> Exported cleaning_report.md"
     ],
-    "narration": "Step three: mixed date parsing. Pandas 3.x format='mixed' handles ISO, slash-separated, and missing values in one call. Twenty mixed dates parsed to ISO format automatically.",
-    "caption": "One call parses ISO, slashes, and missing values"
+    "narration": "When you execute the pipeline, it emits a step-by-step audit trail and checks five strict assertions: unique IDs, numeric spend, valid dates, canonical countries, and row-count sanity.",
+    "caption": "Every transformation logged and verified automatically."
   },
   {
-    "title": "6. Step 4: Country Normalization",
-    "items": [
-      "COUNTRY_MAP = {'usa': 'United States', 'uk': 'United Kingdom', ...}",
-      "df['country'].str.lower().map(COUNTRY_MAP)",
-      "20 variants to 6 canonical (unmatched preserved)"
+    "layout": "stats",
+    "kicker": "VERIFIED BENCHMARK",
+    "title": "Clean Production Data in Seconds",
+    "stats": [
+      { "value": 20, "suffix": " rows", "label": "Verified Clean Output Records", "bar": 100 },
+      { "value": 20, "suffix": " dups", "label": "Duplicate IDs Caught & Removed", "bar": 100 },
+      { "value": 7, "suffix": " NaN", "label": "Financial Nulls Safely Preserved", "bar": 88 },
+      { "value": 6, "suffix": " regions", "label": "Canonical Countries (From 20 Variants)", "bar": 94 },
+      { "value": 5, "suffix": "/5", "label": "Automated Schema Guards Passed", "bar": 100 },
+      { "value": 10, "suffix": " sec", "label": "Total Script Execution Time", "bar": 95 }
     ],
-    "narration": "Step four: country normalization. A simple mapping dictionary — twenty variants map to six canonical names. Unmatched values are preserved for review, not dropped.",
-    "caption": "20 country variants map to 6 canonical names"
+    "narration": "Across our messy export, forty noisy rows become twenty verified clean records in seconds—with twenty duplicates caught, seven nulls preserved, and all five schema checks green.",
+    "caption": "40 messy rows -> 20 verified records, 5/5 checks passed."
   },
   {
-    "title": "7. Edge Cases and Hallucination Guards",
+    "layout": "cta",
+    "kicker": "FULL SOURCE & TEMPLATE",
+    "title": "Grab the Complete Cleaner & Sample Data",
+    "repo": "github.com/sayandaswebdesigner/ai-data-cleaner",
     "items": [
-      "Pydantic or JSON Schema validation on output",
-      "Never zero financial nulls to keep NaN",
-      "Preserve unmatched categories for human review",
-      "Structured Markdown cleaning log",
-      "Row-count sanity checks (0.5x to 1.0x)"
+      "cleaner.py Pipeline",
+      "Messy & Clean CSVs",
+      "Auto Cleaning Report",
+      "Python 3 + Pandas"
     ],
-    "narration": "Edge cases and hallucination guards. Pydantic or JSON Schema validation on output. Never zero financial nulls — keep them as NaN. Preserve unmatched categories for human review. Generate a structured Markdown cleaning log. Row-count sanity checks ensure you didn't lose half your data. Human-in-the-loop equals production safety.",
-    "caption": "Production safety: validate, preserve, log, sanity-check"
-  },
-  {
-    "title": "8. Results and Verification",
-    "items": [
-      "40 rows to 20 clean rows",
-      "20 duplicate IDs removed",
-      "7 spend dashes to NaN (not zero!)",
-      "20 mixed dates to ISO format",
-      "20 country variants to 6 canonical",
-      "20 phones to E.164 format",
-      "Verification log and schema guards passed"
-    ],
-    "narration": "The results: forty rows become twenty clean rows. Twenty duplicate IDs removed. Seven spend dashes become NaN, not zero. Twenty mixed dates parsed to ISO format. Twenty country variants collapse to six canonical. Twenty phones normalized to E.164. A full verification log generated. All five schema guards passed. Ready for next month's batch.",
-    "caption": "Verified clean: 20 rows, 5 schema checks passed"
-  },
-  {
-    "title": "9. Get the Code and Next Steps",
-    "items": [
-      "github.com/TaskToFlow/ai-data-cleaner",
-      "cleaner.py (full pipeline)",
-      "customers_messy.csv (sample data)",
-      "cleaning_report.md (auto-generated)",
-      "What would YOU clean next?",
-      "Task to Flow - Practical AI Workflows"
-    ],
-    "narration": "Get the complete code at github.com/TaskToFlow/ai-data-cleaner. You'll find cleaner.py with the full pipeline, the sample messy dataset, and the auto-generated cleaning report. What messy dataset would you clean next? Subscribe for practical AI workflows from Task to Flow.",
-    "caption": "Code at github.com/TaskToFlow/ai-data-cleaner - Subscribe!"
+    "narration": "The complete script, messy sample dataset, and verification report are live on GitHub right now. Subscribe to Task to Flow for more practical, verified AI workflows.",
+    "caption": "Code live on GitHub — Subscribe for more practical AI!"
   }
 ]
